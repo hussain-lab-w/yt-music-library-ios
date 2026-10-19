@@ -11,7 +11,7 @@ struct AudioTrack: Identifiable, Codable, Hashable {
     var isFavorite: Bool = false
     var addedAt: Date = .now
 
-    var displayArtist: String { artist.isEmpty ? "فنان غير معروف" : artist }
+    var displayArtist: String { artist.isEmpty ? "Unknown artist" : artist }
 }
 
 @MainActor

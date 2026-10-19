@@ -1,28 +1,25 @@
 # YT Music Library — SwiftUI
 
-تطبيق iOS أصلي لإدارة مكتبة صوتية عربية خفيفة، مع تنزيل الصوت من الروابط عبر Backend خاص مبني على `yt-dlp` و`ffmpeg`، ثم تشغيل الملفات محلياً وتنظيمها.
+A modern English SwiftUI audio library with a real download pipeline. The iOS app accepts a video or playlist URL, asks a separate Python Backend to download and convert the audio with `yt-dlp` and `ffmpeg`, then saves the resulting MP3 files locally for offline playback.
 
-## المزايا
+## Why the old build failed
 
-- إدخال رابط فيديو أو قائمة وبدء التنزيل.
-- متابعة حالة التقدم وتحويل الصوت إلى MP3.
-- استيراد ملفات الصوت من تطبيق Files.
-- تشغيل محلي، بحث، مفضلة، حذف، وتصدير M3U.
-- واجهة عربية RTL وحفظ المكتبة داخل الجهاز.
+`127.0.0.1` inside an iPhone points to the iPhone itself, not your computer. The app now has a **Backend Settings** screen and refuses to start until it can reach `/health`. Use a deployed **HTTPS** Backend URL, for example `https://your-service.example.com`.
 
-استخدم التنزيل فقط للمحتوى الذي تملكه أو لديك إذن واضح بتنزيله. لا أستطيع ضمان حقوق المحتوى الذي تدخله أنت.
-
-## Backend
+## Backend setup
 
 ```bash
 cd server
-python3 -m venv .venv && source .venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
-عدّل `baseURL` في `DownloadService.swift` إلى عنوان الخادم المنشور قبل بناء IPA. لا تضع مفاتيح أو أسراراً داخل التطبيق.
+For local network testing, expose the server through a reachable HTTPS tunnel or deploy it to a server with a public HTTPS URL. Then open the app, tap Download → Settings, and paste that URL. The Backend must expose `/health`, `/api/download`, and `/api/download/{id}`.
 
-## IPA عبر GitHub Actions
+The app supports playlists and downloads every MP3 returned by the Backend. Use downloads only for content you own or are authorized to save.
 
-الـ workflow في `.github/workflows/ios.yml` يبني التطبيق على `macos-latest` عند كل push وينتج IPA غير موقّع كـ Artifact. للتثبيت على جهاز حقيقي، أضف شهادة Apple وملف provisioning profile كـ GitHub Secrets ثم فعّل التوقيع في workflow.
+## GitHub Actions
+
+`.github/workflows/ios.yml` builds an unsigned IPA on `macos-latest`. A real iPhone installation requires Apple signing credentials and a provisioning profile. The app bundle metadata is configured for iOS and the Xcode project includes the settings and download files.

@@ -1,11 +1,17 @@
 import Foundation
 
+struct DownloadedFile: Codable, Identifiable {
+    let id: String
+    let title: String
+    let url: String
+}
+
 struct DownloadJob: Codable, Identifiable {
     let id: String
     var title: String
     var status: String
     var progress: Double
-    var fileURL: String?
+    var files: [DownloadedFile]
     var error: String?
 }
 
@@ -13,48 +19,88 @@ struct DownloadJob: Codable, Identifiable {
 final class DownloadService: ObservableObject {
     @Published var urlText = ""
     @Published var job: DownloadJob?
-    @Published var isWorking = false
     @Published var message = ""
-    @Published var downloadedData: Data?
+    @Published var isWorking = false
+    @Published var downloadedFiles: [(title: String, data: Data)] = []
 
-    // Set this to the deployed backend URL before release.
-    var baseURL = URL(string: "http://127.0.0.1:8000")!
+    private let settings: AppSettings
+
+    init(settings: AppSettings) { self.settings = settings }
 
     func startDownload() async {
-        guard let url = URL(string: urlText.trimmingCharacters(in: .whitespacesAndNewlines)), url.scheme != nil else {
-            message = "أدخل رابطاً صحيحاً"; return
+        downloadedFiles = []
+        guard let backend = settings.normalizedURL else {
+            message = "Set a valid HTTPS Backend URL in Settings first."; return
         }
-        isWorking = true; message = "جاري تجهيز الرابط..."
+        let source = urlText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let sourceURL = URL(string: source), ["http", "https"].contains(sourceURL.scheme?.lowercased() ?? "") else {
+            message = "Paste a valid video or playlist URL."; return
+        }
+        isWorking = true
         defer { isWorking = false }
         do {
-            var request = URLRequest(url: baseURL.appendingPathComponent("api/download"))
+            try await checkConnection(backend: backend)
+            message = "Starting download..."
+            var request = URLRequest(url: backend.appendingPathComponent("api/download"))
             request.httpMethod = "POST"
+            request.timeoutInterval = 30
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = try JSONEncoder().encode(["url": url.absoluteString])
+            request.httpBody = try JSONSerialization.data(withJSONObject: ["url": source])
             let (data, response) = try await URLSession.shared.data(for: request)
-            guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else { throw URLError(.badServerResponse) }
+            try validate(response)
             job = try JSONDecoder().decode(DownloadJob.self, from: data)
-            message = "بدأ التنزيل"
-            await poll()
-        } catch { message = "تعذر بدء التنزيل: \(error.localizedDescription)" }
+            await poll(backend: backend)
+        } catch {
+            message = friendlyError(error)
+        }
     }
 
-    private func poll() async {
+    private func checkConnection(backend: URL) async throws {
+        var request = URLRequest(url: backend.appendingPathComponent("health"))
+        request.timeoutInterval = 10
+        let (data, response) = try await URLSession.shared.data(for: request)
+        try validate(response)
+        guard String(data: data, encoding: .utf8) != nil else { throw URLError(.cannotParseResponse) }
+    }
+
+    private func poll(backend: URL) async {
         guard let id = job?.id else { return }
-        while isWorking || job?.status == "queued" || job?.status == "downloading" || job?.status == "converting" {
+        for _ in 0..<1800 {
             do {
-                let (data, _) = try await URLSession.shared.data(from: baseURL.appendingPathComponent("api/download/\(id)"))
+                let (data, response) = try await URLSession.shared.data(from: backend.appendingPathComponent("api/download/\(id)"))
+                try validate(response)
                 let latest = try JSONDecoder().decode(DownloadJob.self, from: data)
                 job = latest
                 if latest.status == "completed" {
-                    if let path = latest.fileURL, let fileURL = URL(string: path, relativeTo: baseURL) {
-                        downloadedData = try? Data(contentsOf: fileURL)
+                    message = "Download complete. Preparing files..."
+                    for file in latest.files {
+                        let fileURL = backend.appendingPathComponent(file.url.trimmingCharacters(in: CharacterSet(charactersIn: "/")))
+                        let (audio, fileResponse) = try await URLSession.shared.data(from: fileURL)
+                        try validate(fileResponse)
+                        downloadedFiles.append((file.title, audio))
                     }
-                    message = "اكتمل التنزيل"; return
+                    message = "Ready to add \(downloadedFiles.count) file(s) to your library."
+                    return
                 }
-                if latest.status == "error" { message = latest.error ?? "فشل التنزيل"; return }
-            } catch { message = "انقطع الاتصال بالخادم"; return }
+                if latest.status == "error" { message = latest.error ?? "The server could not complete the download."; return }
+            } catch { message = friendlyError(error); return }
             try? await Task.sleep(for: .seconds(1))
         }
+        message = "The download timed out. Check the server logs and try again."
+    }
+
+    private func validate(_ response: URLResponse) throws {
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else { throw URLError(.badServerResponse) }
+    }
+
+    private func friendlyError(_ error: Error) -> String {
+        if let urlError = error as? URLError {
+            switch urlError.code {
+            case .notConnectedToInternet, .cannotFindHost, .cannotConnectToHost, .timedOut: return "Could not connect to the Backend. Check the URL and make sure the server is online."
+            case .appTransportSecurityRequiresSecureConnection: return "The Backend must use HTTPS."
+            default: break
+            }
+        }
+        return error.localizedDescription
     }
 }
