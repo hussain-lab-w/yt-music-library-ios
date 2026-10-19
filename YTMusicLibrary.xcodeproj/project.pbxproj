@@ -1,0 +1,33 @@
+// !$*UTF8*$!
+{
+ archiveVersion = 1;
+ classes = { };
+ objectVersion = 56;
+ objects = {
+  111111111111111111111111 /* Project object */ = { isa = PBXProject; attributes = { LastUpgradeCheck = 1600; ORGANIZATIONNAME = "YT Music Library"; }; buildConfigurationList = 222222222222222222222222 /* Project configs */; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = ( en, ar, ); mainGroup = 333333333333333333333333; productRefGroup = 444444444444444444444444; projectDirPath = ""; projectRoot = ""; targets = ( 555555555555555555555555, ); };
+  333333333333333333333333 = { isa = PBXGroup; children = ( 666666666666666666666666 /* App */, 777777777777777777777777 /* Products */, ); sourceTree = "<group>"; };
+  666666666666666666666666 = { isa = PBXGroup; children = ( 888888888888888888888888, 999999999999999999999999, AAAAAAAAAAAAAAAAAAAAAAAA, BBBBBBBBBBBBBBBBBBBBBBBB, CCCCCCCCCCCCCCCCCCCCCCCC, ); path = YTMusicLibrary/App; sourceTree = "<group>"; };
+  777777777777777777777777 = { isa = PBXGroup; children = ( DDDDDDDDDDDDDDDDDDDDDDDD, ); name = Products; sourceTree = "<group>"; };
+  DDDDDDDDDDDDDDDDDDDDDDDD = { isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YTMusicLibrary.app; sourceTree = BUILT_PRODUCTS_DIR; };
+  888888888888888888888888 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTMusicLibraryApp.swift; sourceTree = "<group>"; };
+  999999999999999999999999 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioLibrary.swift; sourceTree = "<group>"; };
+  AAAAAAAAAAAAAAAAAAAAAAAA = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+  BBBBBBBBBBBBBBBBBBBBBBBB = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadService.swift; sourceTree = "<group>"; };
+  CCCCCCCCCCCCCCCCCCCCCCCC = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadView.swift; sourceTree = "<group>"; };
+  EEEEEEEEEEEEEEEEEEEEEEEE = { isa = PBXBuildFile; fileRef = 888888888888888888888888; };
+  FFFFFFFFFFFFFFFFFFFFFFFF = { isa = PBXBuildFile; fileRef = 999999999999999999999999; };
+  121212121212121212121212 = { isa = PBXBuildFile; fileRef = AAAAAAAAAAAAAAAAAAAAAAAA; };
+  131313131313131313131313 = { isa = PBXBuildFile; fileRef = BBBBBBBBBBBBBBBBBBBBBBBB; };
+  141414141414141414141414 = { isa = PBXBuildFile; fileRef = CCCCCCCCCCCCCCCCCCCCCCCC; };
+  151515151515151515151515 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = ( EEEEEEEEEEEEEEEEEEEEEEEE, FFFFFFFFFFFFFFFFFFFFFFFF, 121212121212121212121212, 131313131313131313131313, 141414141414141414141414, ); runOnlyForDeploymentPostprocessing = 0; };
+  555555555555555555555555 = { isa = PBXNativeTarget; buildConfigurationList = 161616161616161616161616 /* Target configs */; buildPhases = ( 151515151515151515151515, 171717171717171717171717, ); buildRules = ( ); dependencies = ( ); name = YTMusicLibrary; productName = YTMusicLibrary; productReference = DDDDDDDDDDDDDDDDDDDDDDDD; productType = "com.apple.product-type.application"; };
+  171717171717171717171717 = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = ( ); runOnlyForDeploymentPostprocessing = 0; };
+  222222222222222222222222 = { isa = XCConfigurationList; buildConfigurations = ( 181818181818181818181818, 191919191919191919191919, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+  161616161616161616161616 = { isa = XCConfigurationList; buildConfigurations = ( 202020202020202020202020, 212121212121212121212121, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+  181818181818181818181818 = { isa = XCBuildConfiguration; buildSettings = { ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; SWIFT_VERSION = 5.0; }; name = Debug; };
+  191919191919191919191919 = { isa = XCBuildConfiguration; buildSettings = { ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; SWIFT_VERSION = 5.0; }; name = Release; };
+  202020202020202020202020 = { isa = XCBuildConfiguration; buildSettings = { PRODUCT_BUNDLE_IDENTIFIER = com.example.YTMusicLibrary; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; IPHONEOS_DEPLOYMENT_TARGET = 17.0; INFOPLIST_FILE = YTMusicLibrary/App/Info.plist; SDKROOT = iphoneos; CODE_SIGN_STYLE = Automatic; }; name = Debug; };
+  212121212121212121212121 = { isa = XCBuildConfiguration; buildSettings = { PRODUCT_BUNDLE_IDENTIFIER = com.example.YTMusicLibrary; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; IPHONEOS_DEPLOYMENT_TARGET = 17.0; INFOPLIST_FILE = YTMusicLibrary/App/Info.plist; SDKROOT = iphoneos; CODE_SIGN_STYLE = Automatic; }; name = Release; };
+ };
+ rootObject = 111111111111111111111111;
+}
